@@ -3149,6 +3149,8 @@ NOTE(note_disable_error_propagation,none,
 
 WARNING(no_throw_in_try,none,
         "no calls to throwing functions occur within 'try' expression", ())
+NOTE(note_no_throw_in_try_with_closure, none,
+        "'try' outside a closure doesn't apply to the statements inside the closure", ())
 
 WARNING(no_throw_in_do_with_catch,none,
         "'catch' block is unreachable because no errors are thrown in 'do' block", ())

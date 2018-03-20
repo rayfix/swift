@@ -139,3 +139,18 @@ func fixitThrow2() throws {
   throw MSV.Foo
   var _: (Int) throw -> Int // expected-error{{expected throwing specifier; did you mean 'throws'?}} {{16-21=throws}}
 }
+
+// Unnecessary try with and without closure diagnostic (SR-7113)
+func funcNoClosure() { }
+func funcWithClosure(_ method: ()->Void) {}
+func testNoteForNonThrowingStatementWithClosures() {
+  try  funcNoClosure()     // expected-warning {{no calls to throwing functions occur within 'try' expression}}
+  try  funcWithClosure{}   // expected-warning {{no calls to throwing functions occur within 'try' expression}}
+                           // expected-note @-1 {{'try' outside a closure doesn't apply to the statements inside the closure}}
+  try! funcNoClosure()     // expected-warning {{no calls to throwing functions occur within 'try' expression}}
+  try! funcWithClosure{}   // expected-warning {{no calls to throwing functions occur within 'try' expression}}
+                           // expected-note @-1 {{'try' outside a closure doesn't apply to the statements inside the closure}}
+  try? funcNoClosure()     // expected-warning {{no calls to throwing functions occur within 'try' expression}}
+  try? funcWithClosure{}   // expected-warning {{no calls to throwing functions occur within 'try' expression}}
+                           // expected-note @-1 {{'try' outside a closure doesn't apply to the statements inside the closure}}                         
+}
