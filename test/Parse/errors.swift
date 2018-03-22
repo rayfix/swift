@@ -141,16 +141,20 @@ func fixitThrow2() throws {
 }
 
 // Unnecessary try with and without closure diagnostic (SR-7113)
-func funcNoClosure() { }
-func funcWithClosure(_ method: ()->Void) {}
-func testNoteForNonThrowingStatementWithClosures() {
-  try  funcNoClosure()     // expected-warning {{no calls to throwing functions occur within 'try' expression}}
-  try  funcWithClosure{}   // expected-warning {{no calls to throwing functions occur within 'try' expression}}
-                           // expected-note @-1 {{'try' outside a closure doesn't apply to the statements inside the closure}}
-  try! funcNoClosure()     // expected-warning {{no calls to throwing functions occur within 'try' expression}}
-  try! funcWithClosure{}   // expected-warning {{no calls to throwing functions occur within 'try' expression}}
-                           // expected-note @-1 {{'try' outside a closure doesn't apply to the statements inside the closure}}
-  try? funcNoClosure()     // expected-warning {{no calls to throwing functions occur within 'try' expression}}
-  try? funcWithClosure{}   // expected-warning {{no calls to throwing functions occur within 'try' expression}}
-                           // expected-note @-1 {{'try' outside a closure doesn't apply to the statements inside the closure}}                         
+func throwingFunc() throws {}
+func nonThrowingFunc(_ method: () throws -> Void) {}
+func testWarning() {
+  try nonThrowingFunc { // expected-warning {{no calls to throwing functions occur within 'try' expression}}
+  }
+  try nonThrowingFunc { // expected-warning {{no calls to throwing functions occur within 'try' expression; throwing statements inside the closure body do not apply}}
+    throwingFunc()      // expected-error {{call can throw, but it is not marked with 'try' and the error is not handled}}
+  }
+  try nonThrowingFunc { // expected-warning {{no calls to throwing functions occur within 'try' expression; throwing statements inside the closure body do not apply}}
+    try throwingFunc()
+  }
+  nonThrowingFunc {
+    try throwingFunc()
+  }
+  // TODO: Add try! and try? variants
+
 }
